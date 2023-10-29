@@ -1,0 +1,11 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /
+
+aws:
+  bucket-name: ${BUCKET_NAME:bucket-s3-devrocha}
