@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
@@ -30,7 +31,11 @@ public class DocumentAwsGateway implements DocumentGateway {
                 .build();
         do {
             response = s3Client.listObjectsV2(request);
-            response.contents().forEach(s3Object -> resultKeys.add(s3Object.key()));
+            response.contents().forEach(s3Object ->{
+                if(!s3Object.key().endsWith("/")){
+                    resultKeys.add(s3Object.key());
+                }
+            });
             var token = response.continuationToken();
             request = ListObjectsV2Request.builder().prefix(prefix).bucket(BUCKET_NAME).continuationToken(token).build();
         } while (response.isTruncated());
@@ -53,6 +58,17 @@ public class DocumentAwsGateway implements DocumentGateway {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public void uploadFile(String fileName, String contentType, byte[] bytes) {
+        s3Client.putObject(PutObjectRequest.builder()
+                        .bucket(BUCKET_NAME)
+                        .key(fileName)
+                        .contentType(contentType)
+                        .build(),
+                RequestBody.fromBytes(bytes)
+        );
     }
 
     private GetObjectRequest buildRequest(String key) {

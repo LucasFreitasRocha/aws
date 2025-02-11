@@ -4,9 +4,7 @@ import com.crs.aws.entrypoint.dto.in.KeyDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,9 +12,9 @@ import java.util.List;
 @Tag(name= "consult")
 public interface ConsultApi {
 
-    @PostMapping
-    @Operation(summary = "Consult with prefix key", description =
-            "consult with prefix key, if send a empty key return all keys")
-    public ResponseEntity<List<String>> consult(@RequestBody KeyDto keyDto);
+    @GetMapping
+    @Operation(summary = "Consult with prefix prefix", description =
+            "consult with prefix prefix, if send a empty prefix return all keys")
+    public ResponseEntity<List<String>> consult(@RequestParam(required = false) String prefix);
 
 }

@@ -7,13 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
 public class ConsultController  implements ConsultApi{
     private final ConsultUseCaseInterface useCase;
     @Override
-    public ResponseEntity<List<String>> consult(KeyDto keyDto){
-        return ResponseEntity.ok(useCase.consult(keyDto.key()));
+    public ResponseEntity<List<String>> consult(String prefix){
+        return ResponseEntity.ok(useCase.consult(prefix));
     }
 }

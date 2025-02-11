@@ -1,17 +1,20 @@
 package com.crs.aws.entrypoint.api.file;
 
-import com.crs.aws.entrypoint.dto.in.KeyDto;
-import com.crs.aws.entrypoint.dto.out.File64Dto;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequestMapping("/v1/file")
-@Tag(name= "file")
+@Tag(name= "File MultipartFile")
 public interface FileApi {
 
-    @PostMapping("/base64")
-    ResponseEntity<File64Dto> getFile64(@RequestBody KeyDto keyDto);
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    ResponseEntity<?> uploadMultipartFile(@RequestPart("file") MultipartFile file) throws IOException;
 }

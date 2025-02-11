@@ -8,6 +8,7 @@ public interface DocumentGateway {
 
     public List<String> search(String prefix);
 
-
     public File64Dto getFile64(String key);
+
+    void uploadFile(String originalFilename, String contentType, byte[] bytes);
 }
