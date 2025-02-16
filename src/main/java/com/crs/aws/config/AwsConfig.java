@@ -20,11 +20,11 @@ public class AwsConfig {
                         .endpointOverride(URI.create("http://s3.localhost.localstack.cloud:4566"))
                         .region(Region.US_EAST_1)
                         .credentialsProvider(ProfileCredentialsProvider.create())
-                        .build() : S3Client.builder()
-                .region(Region.US_EAST_1)
-                .credentialsProvider(WebIdentityTokenFileCredentialsProvider.create())
-                .build()
-                ;
+                        .build() :
+                S3Client.builder()
+                        .region(Region.US_EAST_1)
+                        .credentialsProvider(WebIdentityTokenFileCredentialsProvider.create())
+                        .build();
     }
 
 }

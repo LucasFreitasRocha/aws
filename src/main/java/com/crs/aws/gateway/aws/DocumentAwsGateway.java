@@ -1,9 +1,12 @@
 package com.crs.aws.gateway.aws;
 
-import com.crs.aws.entrypoint.dto.out.File64Dto;
+import com.amazonaws.services.mq.model.NotFoundException;
+import com.crs.aws.core.domain.FileDomain;
 import com.crs.aws.gateway.DocumentGateway;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -13,8 +16,10 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 @Service
+@Slf4j
 public class DocumentAwsGateway implements DocumentGateway {
     @Value("${aws.bucket-name}")
     private String BUCKET_NAME;
@@ -31,8 +36,8 @@ public class DocumentAwsGateway implements DocumentGateway {
                 .build();
         do {
             response = s3Client.listObjectsV2(request);
-            response.contents().forEach(s3Object ->{
-                if(!s3Object.key().endsWith("/")){
+            response.contents().forEach(s3Object -> {
+                if (!s3Object.key().endsWith("/")) {
                     resultKeys.add(s3Object.key());
                 }
             });
@@ -43,18 +48,19 @@ public class DocumentAwsGateway implements DocumentGateway {
     }
 
     @Override
-    public File64Dto getFile64(String key) {
+    public FileDomain getFile64(String key) {
         try {
             ResponseInputStream<GetObjectResponse> response = s3Client.getObject(buildRequest(key));
-            return File64Dto.builder()
+            return FileDomain.builder()
                     .name(key)
-                    .file(Base64.getEncoder().encodeToString(response.readAllBytes()))
+                    .base64(Base64.getEncoder().encodeToString(response.readAllBytes()))
                     .type(response.response().contentType())
                     .build();
         } catch (NoSuchKeyException e) {
+            log.error("not found this key");
             return null;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -69,6 +75,34 @@ public class DocumentAwsGateway implements DocumentGateway {
                         .build(),
                 RequestBody.fromBytes(bytes)
         );
+    }
+
+    @Override
+    public FileDomain download(String key) {
+
+        try {
+            ResponseInputStream<GetObjectResponse> response = s3Client.getObject(buildRequest(key));
+            FileDomain domain =
+                    FileDomain.builder()
+                            .type("application/octet-stream")
+                            .build();
+            if (Objects.isNull(response.response())) {
+                throw new NotFoundException("Not found");
+            }
+            if (Objects.nonNull(response.response().contentType())) {
+                domain.setType(response.response().contentType());
+            }
+            domain.setResource(new InputStreamResource(response));
+            return domain;
+        } catch (NoSuchKeyException e) {
+            log.error("not found this key");
+            return null;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     private GetObjectRequest buildRequest(String key) {

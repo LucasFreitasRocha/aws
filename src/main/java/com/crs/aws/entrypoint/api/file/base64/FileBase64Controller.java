@@ -12,7 +12,7 @@ public class FileBase64Controller implements FileBase64Api {
     private final FileUseCaseGateway fileUseCaseGateway;
     @Override
     public ResponseEntity<File64Dto> getFile64(String key) {
-        return ResponseEntity.ok(fileUseCaseGateway.getFile64(key));
+        return ResponseEntity.ok(File64Dto.of(fileUseCaseGateway.getFile64(key)));
     }
 
 

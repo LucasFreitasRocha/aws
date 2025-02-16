@@ -1,5 +1,6 @@
 package com.crs.aws.core.usecase.file;
 
+import com.crs.aws.core.domain.FileDomain;
 import com.crs.aws.entrypoint.dto.out.File64Dto;
 import com.crs.aws.gateway.DocumentGateway;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,17 @@ import java.io.IOException;
 public class FileUseCaseImp implements FileUseCaseGateway {
     private final DocumentGateway documentGateway;
     @Override
-    public File64Dto getFile64(String key) {
+    public FileDomain getFile64(String key) {
         return documentGateway.getFile64(key);
     }
 
     @Override
     public void uploadBy(MultipartFile file) throws IOException {
-
         documentGateway.uploadFile(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+    }
+
+    @Override
+    public FileDomain download(String key) {
+        return documentGateway.download(key);
     }
 }
